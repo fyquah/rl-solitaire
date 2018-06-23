@@ -1,0 +1,4 @@
+*.cm*
+*.swp
+*.o
+test.exe
