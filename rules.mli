@@ -56,7 +56,7 @@ module Tableau  : sig
   type t =
     | Empty
     | Something of {
-        hidden  : card list;
+        hidden  : int;
         visible : card list;
         top     : card;
       }
@@ -65,18 +65,18 @@ end
 
 module Maybe_card : sig
   type t =
-    | Visible          of card
     | Hidden_but_known of card
-    | Unknown          of card
+    | Unknown
 end
 
 
 type state =
-  { foundation           : rank option array;
-    tableau              : Tableau.t array;
-    mutable visible_pile : Visible_pile.t;
+  { foundation            : rank option array;
+    tableau               : Tableau.t array;
+    mutable visible_pile  : Visible_pile.t;
     mutable hidden_pile   : Maybe_card.t list;
     mutable num_steps     : int;
+    mutable unseen_cards  : card list;
   }
 
 (* something something  *)

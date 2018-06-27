@@ -56,7 +56,7 @@ module Tableau = struct
   type t =
     | Empty
     | Something of {
-        hidden  : card list;
+        hidden  : int;
         visible : card list;
         top     : card;
       }
@@ -65,9 +65,8 @@ end
 
 module Maybe_card = struct
   type t =
-    | Visible          of card
     | Hidden_but_known of card
-    | Unknown          of card
+    | Unknown
 end
 
 
@@ -76,7 +75,8 @@ type state =
     tableau              : Tableau.t array;
     mutable visible_pile : Visible_pile.t;
     mutable hidden_pile  : Maybe_card.t list;
-    mutable num_steps    : int;
+    mutable num_steps     : int;
+    mutable unseen_cards : card list;
   }
 
 (* something something  *)
@@ -132,6 +132,12 @@ let is_action_legal state action =
     end
 ;;
 
+let unveil_unseen_card state =
+  let card = List.hd state in
+  state.unseen_cards <- List.tl state.unseen_cards;
+  card
+;;
+
 let step state action =
   if not (is_action_legal state action) then
     Illegal_move
@@ -139,7 +145,18 @@ let step state action =
     begin match action with
     | Promote idx_tbl -> ()
     | Move    idx_tbl -> ()
-    | Draw -> ()
+    | Draw ->
+      let card = unveil_unseen_card state in
+      match state.hidden_pile with
+      | [] -> 
+      | hd :: tl ->
+        let card =
+          match hd with
+          | Maybe_card.Hidden_but_known card -> card
+          | Maybe_card.Unknown -> unveil_unseen_card state
+        in
+        state.visible_pile <- visible_pile
+        state.hidden_pile <- tl
     end;
     state.num_steps <- state.num_steps + 1;
     Accepted
